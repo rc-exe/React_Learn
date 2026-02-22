@@ -5,6 +5,7 @@ import './App.css'
 
 function App() {
   const [activeId, setActiveId] = useState(topics[0].id)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     const blocks = topics.map((t) => ({ id: t.id, el: document.getElementById(t.id) })).filter((b) => b.el)
@@ -24,13 +25,52 @@ function App() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setSidebarOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [sidebarOpen])
+
   const scrollTo = (id) => {
     setActiveId(id)
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    setSidebarOpen(false)
   }
 
   return (
-    <div className="app">
+    <div className={`app ${sidebarOpen ? 'menu-open' : ''}`}>
+      <header className="mobile-header">
+        <button
+          type="button"
+          className={`burger ${sidebarOpen ? 'open' : ''}`}
+          onClick={() => setSidebarOpen((o) => !o)}
+          aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={sidebarOpen}
+        >
+          <span className="burger-line" />
+          <span className="burger-line" />
+          <span className="burger-line" />
+        </button>
+        <span className="mobile-header-title">React Basics</span>
+      </header>
+
+      <div
+        className="sidebar-backdrop"
+        aria-hidden="true"
+        onClick={() => setSidebarOpen(false)}
+      />
+
       <aside className="sidebar">
         <header className="sidebar-header">
           <h1>React Basics</h1>
